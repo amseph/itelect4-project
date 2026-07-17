@@ -14,13 +14,14 @@
         semester: string;
     }
     export interface Submission {
-        id: number;
-        studentId: number;
-        courseCode: string;
-        repoUrl: string;
-        submittedAt: Date;
-        score?: number; // ? means this field is optional
-    }
+  id: number;
+  studentId: number;
+  courseCode: string;
+  repoUrl: string;
+  submittedAt: Date;
+  status: SubmissionStatus;
+  score?: number;
+}
 
 // ===== TYPE ALIASES =====
 // A type alias gives a name to any type -- primitives, unions, functions, objects
@@ -73,3 +74,44 @@ const topStudent: StudentWithCourse = {
   },
   gpa: 1.25,
 };
+
+// ===== GENERIC INTERFACE =====
+
+// T is a placeholder for any data type.
+// This allows the same response structure to work with User,
+// Course, Submission, arrays, and other future entities.
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+// ===== UTILITY TYPES =====
+
+// Partial<T> makes every User property optional.
+// Useful when updating only selected fields.
+export type UserUpdate = Partial<User>;
+
+// Pick<T, K> creates a smaller User type
+// containing only the selected properties.
+export type UserPreview = Pick<User, "id" | "name" | "role">;
+
+// Omit<T, K> keeps every User property except
+// the properties listed below.
+export type PublicUser = Omit<User, "email" | "isActive">;
+
+// Record<K, T> requires each role to have a numeric value.
+export type RoleCount = Record<
+  "student" | "admin" | "instructor",
+  number
+>;
+
+// ===== ENUM =====
+
+// Represents the possible stages of a submission.
+export enum SubmissionStatus {
+  Pending = "pending",
+  Submitted = "submitted",
+  Graded = "graded",
+  Late = "late",
+}

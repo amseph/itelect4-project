@@ -1,5 +1,16 @@
-import type { User, Course, Submission } from "../types/index";
-import type { StringOrNumber } from "../types/index";
+import type {
+  User,
+  Course,
+  Submission,
+  StringOrNumber,
+  ApiResponse,
+  UserUpdate,
+  UserPreview,
+  PublicUser,
+  RoleCount,
+} from "../types/index";
+
+import { SubmissionStatus } from "../types/index";
 // ===== PRIMITIVE TYPE ANNOTATIONS =====
 // Variables with explicit types
 const projectName: string = "itelect4-project";
@@ -74,3 +85,91 @@ function formatDate(value: string | Date): string {
 console.log(processInput("hello")); // HELLO
 console.log(processInput(3.14159)); // 3.14
 console.log(formatDate(new Date())); // e.g. 7/4/2026
+
+// ===== GENERIC FUNCTIONS =====
+
+// Returns the first item from any type of array.
+function getFirst<T>(items: T[]): T | undefined {
+  return items[0];
+}
+
+// Constrained generic:
+// T must be an object containing an id property.
+function getById<T extends { id: number }>(
+  items: T[],
+  id: number
+): T | undefined {
+  return items.find((item) => item.id === id);
+}
+
+const firstUser = getFirst<User>([student]);
+const foundUser = getById<User>([student], 1);
+
+console.log("First user:", firstUser?.name);
+console.log("Found user:", foundUser?.email);
+
+// ===== USING THE GENERIC INTERFACE =====
+
+const userResponse: ApiResponse<User> = {
+  success: true,
+  data: student,
+  message: "User retrieved successfully.",
+};
+
+const courseResponse: ApiResponse<Course[]> = {
+  success: true,
+  data: [course],
+  message: "Courses retrieved successfully.",
+};
+
+console.log(userResponse.data.name);
+console.log(courseResponse.data[0]?.title);
+
+// ===== USING UTILITY TYPES =====
+
+// Partial<User>
+// Only the properties being updated are required.
+const userPatch: UserUpdate = {
+  name: "Juan D. Cruz",
+  isActive: false,
+};
+
+// Pick<User, ...>
+// Contains only id, name, and role.
+const userPreview: UserPreview = {
+  id: 1,
+  name: "Juan dela Cruz",
+  role: "student",
+};
+
+// Omit<User, ...>
+// Email and isActive are intentionally excluded.
+const publicUser: PublicUser = {
+  id: 1,
+  name: "Juan dela Cruz",
+  role: "student",
+};
+
+// Record<roles, number>
+// Requires all three roles to have values.
+const roleCount: RoleCount = {
+  student: 45,
+  admin: 2,
+  instructor: 3,
+};
+
+console.log("Update payload:", userPatch);
+console.log("User preview:", userPreview);
+console.log("Public user:", publicUser);
+console.log("Role count:", roleCount);
+
+// ===== USING ENUM =====
+
+const submissionStatus: SubmissionStatus =
+  SubmissionStatus.Submitted;
+
+console.log("Submission status:", submissionStatus);
+
+if (submissionStatus === SubmissionStatus.Submitted) {
+  console.log("The project has been submitted for checking.");
+}
