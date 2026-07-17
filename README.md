@@ -1,4 +1,4 @@
-# ITELECT4 TypeScript Project
+# Campus Study Room Reservation System
 
 ## Project Concept
 
