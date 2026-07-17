@@ -1,40 +1,60 @@
 # ITELECT4 TypeScript Project
 
-This project is a simple academic submission management system created for ITELECT4. It demonstrates the fundamental and advanced features of TypeScript through users, courses, and project submissions. Users may have student, administrator, or instructor roles, while submissions can move through different statuses such as pending, submitted, graded, or late.
+## Project Concept
 
-## Current TypeScript Features
+This project is a Campus Study Room Reservation System for ITELECT4 GT1 Part 2.
+It models how students reserve campus study rooms and how administrators review
+reservation requests.
 
-The project currently demonstrates:
+The project is intentionally simple and console-based. Its purpose is to
+demonstrate TypeScript concepts using realistic entities instead of building a
+full application.
 
-- Primitive type annotations
-- Special types such as `any`, `unknown`, and `never`
-- Interfaces for `User`, `Course`, and `Submission`
-- Type aliases
-- Union and intersection types
-- Type narrowing
-- Generic functions
-- Generic interfaces
-- Utility types
-- Enums
-- TypeScript strict mode
+## Defined Core Types & Interfaces
 
-## Main Entities
+The main domain entities are defined in `types/index.ts`.
 
-### User
+- `User` represents a student or administrator.
+- `StudyRoom` represents a reservable campus room.
+- `Reservation` represents a booking request for a study room.
+- `Role` defines the allowed user roles: `student` and `admin`.
+- `ReservationStatus` defines the reservation flow: `pending`, `approved`,
+  `rejected`, `completed`, and `cancelled`.
+- `ApiResponse<T>` is a reusable generic interface for typed API-style results.
 
-Represents students, administrators, and instructors.
+## TypeScript Concepts Demonstrated
 
-### Course
+This project demonstrates the following TypeScript concepts:
 
-Represents an academic course with its code, title, units, and semester.
+- Primitive types: `string`, `number`, `boolean`, `null`, and `undefined`
+- Special types: `any`, `unknown`, `void`, and `never`
+- Interfaces for structured objects
+- Type aliases for IDs, room features, and reservation actions
+- Union types for flexible values and limited options
+- Intersection types through `ReservationWithDetails`
+- Type narrowing with `typeof` and `switch`
+- Enums for roles and reservation statuses
+- Generic interface: `ApiResponse<T>`
+- Generic functions: `getFirst<T>` and `getById<T extends { id: number }>`
+- Utility types: `Partial<StudyRoom>`, `Pick<StudyRoom>`, `Omit<User>`, and
+  `Record<ReservationStatus, number>`
 
-### Submission
+## Setup and Execution
 
-Represents a student's GitHub project submission for a course.
-
-## Installation
-
-Clone the repository:
+Install dependencies:
 
 ```bash
-git clone https://github.com/amseph/itelect4-project.git
+npm install
+```
+
+Run the TypeScript demo:
+
+```bash
+npx ts-node src/index.ts
+```
+
+Check TypeScript without generating files:
+
+```bash
+npx tsc --noEmit
+```

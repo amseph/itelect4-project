@@ -1,100 +1,162 @@
 import type {
-  User,
-  Course,
-  Submission,
-  StringOrNumber,
   ApiResponse,
-  UserUpdate,
-  UserPreview,
+  ID,
   PublicUser,
-  RoleCount,
+  Reservation,
+  ReservationAction,
+  ReservationStatusCount,
+  ReservationWithDetails,
+  RoomFeature,
+  StringOrNumber,
+  StudyRoom,
+  StudyRoomPreview,
+  StudyRoomUpdate,
+  User,
 } from "../types/index";
 
-import { SubmissionStatus } from "../types/index";
-// ===== PRIMITIVE TYPE ANNOTATIONS =====
-// Variables with explicit types
-const projectName: string = "itelect4-project";
-const currentYear: number = 2026;
-const isFullStack: boolean = true;
-const nothing: null = null;
-const notSet: undefined = undefined;
-// Function: typed parameters + typed return value
-function greet(name: string, year: number): string {
-  return `Welcome to ${name} -- AY ${year}!`;
-}
-// void: function that does NOT return a value
-function logMessage(message: string): void {
-  console.log(message);
-}
-logMessage(greet(projectName, currentYear));
+import { ReservationStatus, Role } from "../types/index";
 
-// ===== SPECIAL TYPES =====
-// any -- disables TypeScript type checking
-// [!] Avoid using this; it defeats the purpose of TypeScript
-let anything: any = "hello";
-anything = 42; // No error
-anything = true; // No error
-// unknown -- the safer version of any
-// You MUST check the type before using it
-let userInput: unknown = "test";
-if (typeof userInput === "string") {
-  console.log(userInput.toUpperCase()); // OK -- TypeScript knows it's a string here
+// Primitive types
+const systemName: string = "Campus Study Room Reservation System";
+const currentYear: number = 2026;
+const isOnline: boolean = true;
+const maintenanceNote: null = null;
+const selectedRoom: undefined = undefined;
+
+function buildWelcomeMessage(name: string, year: number): string {
+  return `${name} is ready for AY ${year}.`;
 }
-// never -- a function that NEVER returns
-// Used when a function always throws an error or loops forever
-function throwError(message: string): never {
+
+function logSection(title: string): void {
+  console.log(`\n=== ${title} ===`);
+}
+
+logSection("System");
+console.log(buildWelcomeMessage(systemName, currentYear));
+console.log("Online:", isOnline);
+console.log("Maintenance note:", maintenanceNote);
+console.log("Selected room:", selectedRoom);
+
+// Special types
+let importedValue: any = "Room 204";
+importedValue = 204;
+
+let searchInput: unknown = "projector";
+if (typeof searchInput === "string") {
+  console.log("Search keyword:", searchInput.toUpperCase());
+}
+
+function failReservation(message: string): never {
   throw new Error(message);
 }
 
-// ===== USING INTERFACES =====
-const student: User = {
-  id: 1,
-  name: "Juan dela Cruz",
-  email: "juan@example.com",
-  role: "student",
-  isActive: true,
-};
-const course: Course = {
-  code: "ITELECT4",
-  title: "IT Elective 4",
-  units: 3,
-  semester: "1st Semester 2026-2027",
-};
+// Interfaces and enums
+const users: User[] = [
+  {
+    id: 1,
+    name: "Juan Dela Cruz",
+    email: "juan@student.edu",
+    role: Role.Student,
+    isActive: true,
+  },
+  {
+    id: 2,
+    name: "Ana Reyes",
+    email: "ana.admin@campus.edu",
+    role: Role.Admin,
+    isActive: true,
+  },
+];
 
-console.log(student);
-console.log(course);
+const studyRooms: StudyRoom[] = [
+  {
+    id: 101,
+    name: "Innovation Room",
+    building: "Library",
+    capacity: 6,
+    hasProjector: true,
+    isAvailable: true,
+  },
+  {
+    id: 102,
+    name: "Quiet Study Pod",
+    building: "Engineering Hall",
+    capacity: 4,
+    hasProjector: false,
+    isAvailable: false,
+  },
+];
 
-// ===== TYPE NARROWING =====
-// Narrowing with typeof
-// Without the if-check, TypeScript would error:
-// Property 'toUpperCase' does not exist on type 'number'
-function processInput(input: StringOrNumber): string {
-  if (typeof input === "string") {
-    return input.toUpperCase(); // TypeScript knows: input is string here
+const reservations: Reservation[] = [
+  {
+    id: 5001,
+    userId: 1,
+    roomId: 101,
+    date: "2026-07-20",
+    startTime: "09:00",
+    endTime: "11:00",
+    purpose: "Capstone group meeting",
+    status: ReservationStatus.Pending,
+  },
+  {
+    id: 5002,
+    userId: 1,
+    roomId: 102,
+    date: "2026-07-21",
+    startTime: "14:00",
+    endTime: "15:30",
+    purpose: "Exam review",
+    status: ReservationStatus.Approved,
+  },
+];
+
+logSection("Sample Data");
+console.log("Users:", users);
+console.log("Study rooms:", studyRooms);
+console.log("Reservations:", reservations);
+
+// Type aliases and unions
+const reservationCode: ID = "RSV-5001";
+const roomFeature: RoomFeature = "projector";
+
+function formatIdentifier(value: StringOrNumber): string {
+  if (typeof value === "string") {
+    return value.toUpperCase();
   }
-  return input.toFixed(2); // TypeScript knows: input is number here
+
+  return `#${value.toFixed(0)}`;
 }
-// Narrowing with instanceof
-// Used with class instances like Date, Error, etc.
-function formatDate(value: string | Date): string {
-  if (value instanceof Date) {
-    return value.toLocaleDateString(); // TypeScript knows: it's a Date
+
+function describeFeature(feature: RoomFeature): string {
+  switch (feature) {
+    case "projector":
+      return "Good for presentations.";
+    case "whiteboard":
+      return "Good for group planning.";
+    case "quiet-zone":
+      return "Good for focused study.";
   }
-  return value; // TypeScript knows: it's a string
 }
-console.log(processInput("hello")); // HELLO
-console.log(processInput(3.14159)); // 3.14
-console.log(formatDate(new Date())); // e.g. 7/4/2026
 
-// ===== GENERIC FUNCTIONS =====
+logSection("Aliases, Unions, and Narrowing");
+console.log("Reservation code:", formatIdentifier(reservationCode));
+console.log("Room number:", formatIdentifier(101));
+console.log("Feature:", describeFeature(roomFeature));
 
-// Returns the first item from any type of array.
+// Intersection type
+const detailedReservation: ReservationWithDetails = {
+  ...(reservations[0] ?? failReservation("Reservation was not found.")),
+  user: users[0] ?? failReservation("User was not found."),
+  room: studyRooms[0] ?? failReservation("Study room was not found."),
+};
+
+console.log("Reservation with details:", detailedReservation);
+
+// Generic functions
 function getFirst<T>(items: T[]): T | undefined {
   return items[0];
 }
 
-// Constrained generic:
-// T must be an object containing an id property.
 function getById<T extends { id: number }>(
   items: T[],
   id: number
@@ -102,74 +164,81 @@ function getById<T extends { id: number }>(
   return items.find((item) => item.id === id);
 }
 
-const firstUser = getFirst<User>([student]);
-const foundUser = getById<User>([student], 1);
+const firstRoom = getFirst(studyRooms);
+const foundReservation = getById(reservations, 5002);
 
-console.log("First user:", firstUser?.name);
-console.log("Found user:", foundUser?.email);
+logSection("Generics");
+console.log("First room:", firstRoom?.name);
+console.log("Found reservation:", foundReservation?.purpose);
 
-// ===== USING THE GENERIC INTERFACE =====
-
-const userResponse: ApiResponse<User> = {
+const roomsResponse: ApiResponse<StudyRoom[]> = {
   success: true,
-  data: student,
-  message: "User retrieved successfully.",
+  data: studyRooms,
+  message: "Study rooms loaded.",
 };
 
-const courseResponse: ApiResponse<Course[]> = {
+const reservationResponse: ApiResponse<Reservation> = {
   success: true,
-  data: [course],
-  message: "Courses retrieved successfully.",
+  data: detailedReservation,
+  message: "Reservation loaded.",
 };
 
-console.log(userResponse.data.name);
-console.log(courseResponse.data[0]?.title);
+console.log("API room count:", roomsResponse.data.length);
+console.log("API reservation status:", reservationResponse.data.status);
 
-// ===== USING UTILITY TYPES =====
-
-// Partial<User>
-// Only the properties being updated are required.
-const userPatch: UserUpdate = {
-  name: "Juan D. Cruz",
-  isActive: false,
+// Utility types
+const roomUpdate: StudyRoomUpdate = {
+  isAvailable: false,
+  hasProjector: true,
 };
 
-// Pick<User, ...>
-// Contains only id, name, and role.
-const userPreview: UserPreview = {
-  id: 1,
-  name: "Juan dela Cruz",
-  role: "student",
+const roomPreview: StudyRoomPreview = {
+  id: 101,
+  name: "Innovation Room",
+  building: "Library",
+  capacity: 6,
 };
 
-// Omit<User, ...>
-// Email and isActive are intentionally excluded.
 const publicUser: PublicUser = {
   id: 1,
-  name: "Juan dela Cruz",
-  role: "student",
+  name: "Juan Dela Cruz",
+  role: Role.Student,
 };
 
-// Record<roles, number>
-// Requires all three roles to have values.
-const roleCount: RoleCount = {
-  student: 45,
-  admin: 2,
-  instructor: 3,
+const reservationStatusCount: ReservationStatusCount = {
+  [ReservationStatus.Pending]: 1,
+  [ReservationStatus.Approved]: 1,
+  [ReservationStatus.Rejected]: 0,
+  [ReservationStatus.Completed]: 0,
+  [ReservationStatus.Cancelled]: 0,
 };
 
-console.log("Update payload:", userPatch);
-console.log("User preview:", userPreview);
+logSection("Utility Types");
+console.log("Room update:", roomUpdate);
+console.log("Room preview:", roomPreview);
 console.log("Public user:", publicUser);
-console.log("Role count:", roleCount);
+console.log("Reservation status count:", reservationStatusCount);
 
-// ===== USING ENUM =====
+// Enum-driven workflow
+function applyReservationAction(
+  reservation: Reservation,
+  action: ReservationAction
+): Reservation {
+  if (action === "approve") {
+    return { ...reservation, status: ReservationStatus.Approved };
+  }
 
-const submissionStatus: SubmissionStatus =
-  SubmissionStatus.Submitted;
+  if (action === "reject") {
+    return { ...reservation, status: ReservationStatus.Rejected };
+  }
 
-console.log("Submission status:", submissionStatus);
-
-if (submissionStatus === SubmissionStatus.Submitted) {
-  console.log("The project has been submitted for checking.");
+  return { ...reservation, status: ReservationStatus.Cancelled };
 }
+
+const approvedReservation = applyReservationAction(
+  reservations[0] ?? failReservation("Reservation was not found."),
+  "approve"
+);
+
+logSection("Reservation Workflow");
+console.log("Updated reservation:", approvedReservation);
