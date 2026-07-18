@@ -2,42 +2,13 @@
 
 ## Project Concept
 
-This project is a Campus Study Room Reservation System for ITELECT4 GT1 Part 2.
-It models how students reserve campus study rooms and how administrators review
-reservation requests.
+This React 19 + TypeScript + Vite project models a campus study room reservation system. It displays users, study rooms, and reservation information using shared domain types from `src/types/index.ts`.
 
-The project is intentionally simple and console-based. Its purpose is to
-demonstrate TypeScript concepts using realistic entities instead of building a
-full application.
+## Current React Components
 
-## Defined Core Types & Interfaces
-
-The main domain entities are defined in `types/index.ts`.
-
-- `User` represents a student or administrator.
-- `StudyRoom` represents a reservable campus room.
-- `Reservation` represents a booking request for a study room.
-- `Role` defines the allowed user roles: `student` and `admin`.
-- `ReservationStatus` defines the reservation flow: `pending`, `approved`,
-  `rejected`, `completed`, and `cancelled`.
-- `ApiResponse<T>` is a reusable generic interface for typed API-style results.
-
-## TypeScript Concepts Demonstrated
-
-This project demonstrates the following TypeScript concepts:
-
-- Primitive types: `string`, `number`, `boolean`, `null`, and `undefined`
-- Special types: `any`, `unknown`, `void`, and `never`
-- Interfaces for structured objects
-- Type aliases for IDs, room features, and reservation actions
-- Union types for flexible values and limited options
-- Intersection types through `ReservationWithDetails`
-- Type narrowing with `typeof` and `switch`
-- Enums for roles and reservation statuses
-- Generic interface: `ApiResponse<T>`
-- Generic functions: `getFirst<T>` and `getById<T extends { id: number }>`
-- Utility types: `Partial<StudyRoom>`, `Pick<StudyRoom>`, `Omit<User>`, and
-  `Record<ReservationStatus, number>`
+- `UserCard` displays a user's name, email, role, active status, and select action.
+- `StudyRoomCard` displays room details and disables reservation when the room is unavailable.
+- `ReservationBadge` displays reservation date, time, purpose, status, and optional child content.
 
 ## Setup and Execution
 
@@ -47,14 +18,14 @@ Install dependencies:
 npm install
 ```
 
-Run the TypeScript demo:
+Start the development server:
 
 ```bash
-npx ts-node src/index.ts
+npm run dev
 ```
 
-Check TypeScript without generating files:
+Create a production build:
 
 ```bash
-npx tsc --noEmit
+npm run build
 ```
