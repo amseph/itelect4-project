@@ -2,13 +2,30 @@
 
 ## Project Concept
 
-This React 19 + TypeScript + Vite project models a campus study room reservation system. It displays users, study rooms, and reservation information using shared domain types from `src/types/index.ts`.
+The Campus Study Room Reservation System is a React and TypeScript application that allows students to view campus study rooms and reservation information. It demonstrates reusable typed components, React state management, lifecycle effects, typed DOM events, DOM references, and custom hooks.
 
 ## Current React Components
 
-- `UserCard` displays a user's name, email, role, active status, and select action.
-- `StudyRoomCard` displays room details and disables reservation when the room is unavailable.
-- `ReservationBadge` displays reservation date, time, purpose, status, and optional child content.
+- `UserCard` displays a user's name, email, role, active status, and selection action.
+- `StudyRoomCard` displays room details and allows available rooms to be selected for reservation.
+- `ReservationBadge` displays the date, time, purpose, and status of a reservation.
+
+## React Hooks Implemented
+
+- `useState<T>` manages users, rooms, reservations, loading state, search input, selected user, and selected room.
+- `useEffect` simulates loading mock data when the application first mounts.
+- `useRef<HTMLInputElement>` provides a typed reference used to focus the room search input.
+- `useToggle` is a custom hook used to show or hide reservation details.
+- `usePrevious<T>` is a generic custom hook used to remember the previous room search value.
+
+## Dynamic Features
+
+- Mock data loads dynamically after a short loading state.
+- Users and study rooms are rendered from typed array state.
+- The room search filters results by room name or building.
+- Selecting a user or reserving a room updates the visible selection summary.
+- Reservation details can be shown or hidden.
+- The previous search value is displayed using a custom hook.
 
 ## Setup and Execution
 
@@ -16,16 +33,3 @@ Install dependencies:
 
 ```bash
 npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Create a production build:
-
-```bash
-npm run build
-```
