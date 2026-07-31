@@ -3,6 +3,8 @@ import type { ChangeEvent } from 'react'
 import ReservationBadge from './components/ReservationBadge'
 import StudyRoomCard from './components/StudyRoomCard'
 import UserCard from './components/UserCard'
+import usePrevious from './hooks/usePrevious'
+import useToggle from './hooks/useToggle'
 import { ReservationStatus, Role } from './types'
 import type { Reservation, StudyRoom, User } from './types'
 import './App.css'
@@ -80,9 +82,13 @@ function App() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const searchInputRef = useRef<HTMLInputElement>(null)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [selectedRoom, setSelectedRoom] = useState<StudyRoom | null>(null)
+
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const [showReservationDetails, toggleReservationDetails] = useToggle(true)
+  const previousSearchTerm = usePrevious(searchTerm)
 
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -157,54 +163,61 @@ function App() {
         ))}
       </section>
 
-  <section className="selection-summary" aria-label="Current selection">
-    <div>
-      <p className="eyebrow">Selected user</p>
-      <p className="selection-value">
-        {selectedUser ? selectedUser.name : 'No user selected'}
-      </p>
-    </div>
+      <section className="selection-summary" aria-label="Current selection">
+        <div>
+          <p className="eyebrow">Selected user</p>
+          <p className="selection-value">
+            {selectedUser ? selectedUser.name : 'No user selected'}
+          </p>
+        </div>
 
-    <div>
-      <p className="eyebrow">Requested room</p>
-      <p className="selection-value">
-        {selectedRoom ? selectedRoom.name : 'No room selected'}
-      </p>
-    </div>
-  </section>
+        <div>
+          <p className="eyebrow">Requested room</p>
+          <p className="selection-value">
+            {selectedRoom ? selectedRoom.name : 'No room selected'}
+          </p>
+        </div>
+      </section>
 
-  <section className="search-section" aria-label="Room search">
-    <div className="search-header">
-      <div>
-        <p className="eyebrow">Find a study room</p>
-        <h2>Search rooms</h2>
-      </div>
+      <section className="search-section" aria-label="Room search">
+        <div className="search-header">
+          <div>
+            <p className="eyebrow">Find a study room</p>
+            <h2>Search rooms</h2>
+          </div>
 
-      <button
-        className="secondary-button"
-        type="button"
-        onClick={focusSearchInput}
-      >
-        Focus search
-      </button>
-    </div>
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={focusSearchInput}
+          >
+            Focus search
+          </button>
+        </div>
 
-    <input
-      ref={searchInputRef}
-      className="text-input"
-      type="search"
-      value={searchTerm}
-      placeholder="Search by room name or building"
-      onChange={handleSearchChange}
-    />
+        <input
+          ref={searchInputRef}
+          className="text-input"
+          type="search"
+          value={searchTerm}
+          placeholder="Search by room name or building"
+          onChange={handleSearchChange}
+        />
 
-    <p className="search-result-count">
-      {filteredRooms.length} room
-      {filteredRooms.length === 1 ? '' : 's'} found
-    </p>
-  </section>
+        <p className="search-result-count">
+          {filteredRooms.length} room
+          {filteredRooms.length === 1 ? '' : 's'} found
+        </p>
 
-  <section className="component-grid" aria-label="Study rooms">
+        {previousSearchTerm !== undefined &&
+          previousSearchTerm !== searchTerm && (
+            <p className="previous-search">
+              Previous search: "{previousSearchTerm || 'empty'}"
+            </p>
+          )}
+      </section>
+
+      <section className="component-grid" aria-label="Study rooms">
         {filteredRooms.map((room) => (
           <StudyRoomCard
             key={room.id}
@@ -218,18 +231,37 @@ function App() {
             No study rooms match “{searchTerm}”.
           </p>
         )}
-  </section>
-
-      <section className="component-grid" aria-label="Reservations">
-        {reservations.map((reservation) => (
-          <ReservationBadge
-            key={reservation.id}
-            reservation={reservation}
-          >
-            Reservation information loaded dynamically.
-          </ReservationBadge>
-        ))}
       </section>
+
+      <section className="reservation-controls">
+        <div>
+          <p className="eyebrow">Reservation records</p>
+          <h2>Current requests</h2>
+        </div>
+
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={toggleReservationDetails}
+        >
+          {showReservationDetails
+            ? 'Hide reservation details'
+            : 'Show reservation details'}
+        </button>
+      </section>
+
+      {showReservationDetails && (
+        <section className="component-grid" aria-label="Reservations">
+          {reservations.map((reservation) => (
+            <ReservationBadge
+              key={reservation.id}
+              reservation={reservation}
+            >
+              Reservation information loaded dynamically.
+            </ReservationBadge>
+          ))}
+        </section>
+      )}
     </main>
   )
 }
