@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import ReservationBadge from './components/ReservationBadge'
 import StudyRoomCard from './components/StudyRoomCard'
 import UserCard from './components/UserCard'
@@ -78,6 +79,8 @@ function App() {
   const [rooms, setRooms] = useState<StudyRoom[]>([])
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -92,6 +95,16 @@ function App() {
     }
   }, [])
 
+  const handleSearchChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ): void => {
+    setSearchTerm(event.currentTarget.value)
+  }
+
+  const focusSearchInput = (): void => {
+    searchInputRef.current?.focus()
+  }
+
   const handleUserSelect = (user: User): void => {
     console.info(`Selected user: ${user.name}`)
   }
@@ -99,6 +112,15 @@ function App() {
   const handleRoomReserve = (room: StudyRoom): void => {
     console.info(`Reserve room requested: ${room.name}`)
   }
+
+  const filteredRooms = rooms.filter((room) => {
+    const searchValue = searchTerm.toLowerCase()
+
+    return (
+      room.name.toLowerCase().includes(searchValue) ||
+      room.building.toLowerCase().includes(searchValue)
+    )
+  })
 
   if (isLoading) {
     return (
@@ -133,15 +155,52 @@ function App() {
         ))}
       </section>
 
-      <section className="component-grid" aria-label="Study rooms">
-        {rooms.map((room) => (
+  <section className="search-section" aria-label="Room search">
+    <div className="search-header">
+      <div>
+        <p className="eyebrow">Find a study room</p>
+        <h2>Search rooms</h2>
+      </div>
+
+      <button
+        className="secondary-button"
+        type="button"
+        onClick={focusSearchInput}
+      >
+        Focus search
+      </button>
+    </div>
+
+    <input
+      ref={searchInputRef}
+      className="text-input"
+      type="search"
+      value={searchTerm}
+      placeholder="Search by room name or building"
+      onChange={handleSearchChange}
+    />
+
+    <p className="search-result-count">
+      {filteredRooms.length} room
+      {filteredRooms.length === 1 ? '' : 's'} found
+    </p>
+  </section>
+
+  <section className="component-grid" aria-label="Study rooms">
+        {filteredRooms.map((room) => (
           <StudyRoomCard
             key={room.id}
             room={room}
             onReserve={handleRoomReserve}
           />
         ))}
-      </section>
+
+        {filteredRooms.length === 0 && (
+          <p className="empty-state">
+            No study rooms match “{searchTerm}”.
+          </p>
+        )}
+  </section>
 
       <section className="component-grid" aria-label="Reservations">
         {reservations.map((reservation) => (
