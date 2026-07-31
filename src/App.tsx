@@ -81,6 +81,8 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedRoom, setSelectedRoom] = useState<StudyRoom | null>(null)
 
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -106,11 +108,11 @@ function App() {
   }
 
   const handleUserSelect = (user: User): void => {
-    console.info(`Selected user: ${user.name}`)
+    setSelectedUser(user)
   }
 
   const handleRoomReserve = (room: StudyRoom): void => {
-    console.info(`Reserve room requested: ${room.name}`)
+    setSelectedRoom(room)
   }
 
   const filteredRooms = rooms.filter((room) => {
@@ -154,6 +156,22 @@ function App() {
           />
         ))}
       </section>
+
+  <section className="selection-summary" aria-label="Current selection">
+    <div>
+      <p className="eyebrow">Selected user</p>
+      <p className="selection-value">
+        {selectedUser ? selectedUser.name : 'No user selected'}
+      </p>
+    </div>
+
+    <div>
+      <p className="eyebrow">Requested room</p>
+      <p className="selection-value">
+        {selectedRoom ? selectedRoom.name : 'No room selected'}
+      </p>
+    </div>
+  </section>
 
   <section className="search-section" aria-label="Room search">
     <div className="search-header">
