@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/reservationbadge.tsx","./src/components/studyroomcard.tsx","./src/components/usercard.tsx","./src/hooks/useprevious.ts","./src/hooks/usetoggle.ts","./src/types/index.ts"],"errors":true,"version":"6.0.3"}
