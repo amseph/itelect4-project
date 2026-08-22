@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router'
 import useToggle from '../hooks/useToggle'
 import { useAuthStore } from '../store/authStore'
+import useUiStore from '../store/uiStore'
 
 type NavigationIconName = 'dashboard' | 'rooms' | 'reservations' | 'login'
 
@@ -27,11 +28,12 @@ function NavigationIcon({ name }: { name: NavigationIconName }) {
 }
 
 function Layout() {
-  const [isDarkMode, toggleDarkMode] = useToggle(false)
   const [isSidebarCollapsed, toggleSidebarCollapsed] = useToggle(false)
   const [isMobileMenuOpen, toggleMobileMenu] = useToggle(false)
   const userName = useAuthStore((state) => state.userName)
   const logout = useAuthStore((state) => state.logout)
+  const isDarkMode = useUiStore((state) => state.isDarkMode)
+  const toggleDarkMode = useUiStore((state) => state.toggleDarkMode)
 
   const closeMobileDrawer = (): void => {
     if (isMobileMenuOpen) {

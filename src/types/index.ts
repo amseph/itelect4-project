@@ -41,6 +41,8 @@ export interface Reservation {
   status: ReservationStatus;
 }
 
+export type NewReservation = Omit<Reservation, "id">;
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
