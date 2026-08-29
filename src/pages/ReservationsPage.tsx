@@ -1,20 +1,24 @@
-import { useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createReservation, fetchReservations } from '../api/client'
+import { useForm } from 'react-hook-form'
+import { createReservation, fetchReservations } from '@/api/client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { reservationSchema } from '@/schemas/reservationSchema'
+import type { ReservationFormValues } from '@/schemas/reservationSchema'
 import ReservationBadge from '../components/ReservationBadge'
 import useToggle from '../hooks/useToggle'
 import { ReservationStatus } from '../types'
 import type { NewReservation, Reservation } from '../types'
 
-const initialReservation: NewReservation = {
+const initialReservation: ReservationFormValues = {
   userId: 1,
   roomId: 101,
   date: '2026-08-22',
   startTime: '10:00 AM',
   endTime: '12:00 PM',
   purpose: '',
-  status: ReservationStatus.Pending,
 }
 
 function ReservationsPage() {
@@ -23,24 +27,30 @@ function ReservationsPage() {
     queryKey: ['reservations'],
     queryFn: fetchReservations,
   })
-  const [newReservation, setNewReservation] = useState<NewReservation>(initialReservation)
   const [showReservationDetails, toggleReservationDetails] = useToggle(true)
-  const createReservationMutation = useMutation<Reservation, Error, NewReservation>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ReservationFormValues>({
+    resolver: zodResolver(reservationSchema),
+    mode: 'onBlur',
+    defaultValues: initialReservation,
+  })
+  const addReservation = useMutation<Reservation, Error, NewReservation>({
     mutationFn: createReservation,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reservations'] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['reservations'] })
+      reset()
+    },
   })
 
-  const handleReservationChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = event.currentTarget
-    setNewReservation((current) => ({
-      ...current,
-      [name]: name === 'userId' || name === 'roomId' ? Number(value) : value,
-    }))
-  }
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault()
-    createReservationMutation.mutate(newReservation)
+  const onSubmit = (values: ReservationFormValues): void => {
+    addReservation.mutate({
+      ...values,
+      status: ReservationStatus.Pending,
+    })
   }
 
   if (isPending) {
@@ -61,14 +71,38 @@ function ReservationsPage() {
 
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="new-reservation-title">
           <h2 id="new-reservation-title" className="text-lg font-semibold text-slate-950">New reservation</h2>
-          <form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
-            <label className="text-sm font-medium text-slate-700">User ID<input className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" type="number" name="userId" min="1" required value={newReservation.userId} onChange={handleReservationChange} /></label>
-            <label className="text-sm font-medium text-slate-700">Room ID<input className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" type="number" name="roomId" min="1" required value={newReservation.roomId} onChange={handleReservationChange} /></label>
-            <label className="text-sm font-medium text-slate-700">Date<input className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" type="date" name="date" required value={newReservation.date} onChange={handleReservationChange} /></label>
-            <label className="text-sm font-medium text-slate-700">Start time<input className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" type="text" name="startTime" required value={newReservation.startTime} onChange={handleReservationChange} /></label>
-            <label className="text-sm font-medium text-slate-700">End time<input className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" type="text" name="endTime" required value={newReservation.endTime} onChange={handleReservationChange} /></label>
-            <label className="text-sm font-medium text-slate-700">Purpose<input className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30" type="text" name="purpose" required value={newReservation.purpose} onChange={handleReservationChange} /></label>
-            <div className="sm:col-span-2"><button className="min-h-11 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60" type="submit" disabled={createReservationMutation.isPending}>{createReservationMutation.isPending ? 'Creating reservation...' : 'Create reservation'}</button>{createReservationMutation.isError && <p className="mt-2 text-sm text-red-700" role="alert">{createReservationMutation.error instanceof Error ? createReservationMutation.error.message : 'Unable to create reservation. Please try again.'}</p>}</div>
+          <form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <div>
+              <Label className="text-slate-700" htmlFor="reservation-user-id">User ID</Label>
+              <Input id="reservation-user-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="number" min="1" aria-invalid={errors.userId ? true : undefined} aria-describedby={errors.userId ? 'reservation-user-id-error' : undefined} {...register('userId', { valueAsNumber: true })} />
+              {errors.userId && <p id="reservation-user-id-error" className="mt-1 text-sm text-red-600">{errors.userId.message}</p>}
+            </div>
+            <div>
+              <Label className="text-slate-700" htmlFor="reservation-room-id">Room ID</Label>
+              <Input id="reservation-room-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="number" min="1" aria-invalid={errors.roomId ? true : undefined} aria-describedby={errors.roomId ? 'reservation-room-id-error' : undefined} {...register('roomId', { valueAsNumber: true })} />
+              {errors.roomId && <p id="reservation-room-id-error" className="mt-1 text-sm text-red-600">{errors.roomId.message}</p>}
+            </div>
+            <div>
+              <Label className="text-slate-700" htmlFor="reservation-date">Date</Label>
+              <Input id="reservation-date" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="date" aria-invalid={errors.date ? true : undefined} aria-describedby={errors.date ? 'reservation-date-error' : undefined} {...register('date')} />
+              {errors.date && <p id="reservation-date-error" className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
+            </div>
+            <div>
+              <Label className="text-slate-700" htmlFor="reservation-start-time">Start time</Label>
+              <Input id="reservation-start-time" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="text" aria-invalid={errors.startTime ? true : undefined} aria-describedby={errors.startTime ? 'reservation-start-time-error' : undefined} {...register('startTime')} />
+              {errors.startTime && <p id="reservation-start-time-error" className="mt-1 text-sm text-red-600">{errors.startTime.message}</p>}
+            </div>
+            <div>
+              <Label className="text-slate-700" htmlFor="reservation-end-time">End time</Label>
+              <Input id="reservation-end-time" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="text" aria-invalid={errors.endTime ? true : undefined} aria-describedby={errors.endTime ? 'reservation-end-time-error' : undefined} {...register('endTime')} />
+              {errors.endTime && <p id="reservation-end-time-error" className="mt-1 text-sm text-red-600">{errors.endTime.message}</p>}
+            </div>
+            <div>
+              <Label className="text-slate-700" htmlFor="reservation-purpose">Purpose</Label>
+              <Input id="reservation-purpose" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="text" aria-invalid={errors.purpose ? true : undefined} aria-describedby={errors.purpose ? 'reservation-purpose-error' : undefined} {...register('purpose')} />
+              {errors.purpose && <p id="reservation-purpose-error" className="mt-1 text-sm text-red-600">{errors.purpose.message}</p>}
+            </div>
+            <div className="sm:col-span-2"><Button className="min-h-11 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:ring-blue-500" type="submit" disabled={addReservation.isPending}>{addReservation.isPending ? 'Creating reservation...' : 'Create reservation'}</Button>{addReservation.isError && <p className="mt-2 text-sm text-red-700" role="alert">Unable to create reservation. Please try again.</p>}</div>
           </form>
         </section>
 
