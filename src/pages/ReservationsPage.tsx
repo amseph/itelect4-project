@@ -54,55 +54,55 @@ function ReservationsPage() {
   }
 
   if (isPending) {
-    return <main className="min-h-screen bg-slate-50 p-6 text-slate-900 sm:p-8"><section className="mx-auto max-w-6xl animate-pulse"><div className="mb-3 h-3 w-56 rounded bg-slate-300" /><div className="mb-4 h-10 w-3/4 rounded bg-slate-300" /><div className="h-5 w-full max-w-xl rounded bg-slate-200" /><p className="sr-only">Loading reservation data...</p></section></main>
+    return <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:p-8"><section className="mx-auto max-w-6xl animate-pulse"><div className="mb-3 h-3 w-56 rounded bg-slate-300 dark:bg-slate-700" /><div className="mb-4 h-10 w-3/4 rounded bg-slate-300 dark:bg-slate-700" /><div className="h-5 w-full max-w-xl rounded bg-slate-200 dark:bg-slate-800" /><p className="sr-only">Loading reservation data...</p></section></main>
   }
 
   if (isError) {
-    return <main className="min-h-screen bg-slate-50 p-6 text-slate-900 sm:p-8"><section className="mx-auto max-w-6xl rounded-xl border border-red-200 bg-red-50 p-6 text-red-900 shadow-sm"><p className="mb-2 text-sm font-semibold uppercase tracking-wide text-red-700">Unable to load reservations</p><h1 className="mb-2 text-2xl font-semibold">Something went wrong</h1><p className="mb-5 text-sm text-red-800">{error instanceof Error ? error.message : 'We could not display the reservation data. Please try again.'}</p><button className="rounded-lg border border-red-300 bg-red-100 px-4 py-2 text-sm font-semibold text-red-900 transition hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2" type="button" onClick={() => void refetch()}>Try again</button></section></main>
+    return <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:p-8"><section className="mx-auto max-w-6xl rounded-xl border border-red-200 bg-red-50 p-6 text-red-900 shadow-sm dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-100"><p className="mb-2 text-sm font-semibold uppercase tracking-wide text-red-700 dark:text-red-300">Unable to load reservations</p><h1 className="mb-2 text-2xl font-semibold">Something went wrong</h1><p className="mb-5 text-sm text-red-800 dark:text-red-200">{error instanceof Error ? error.message : 'We could not display the reservation data. Please try again.'}</p><button className="rounded-lg border border-red-300 bg-red-100 px-4 py-2 text-sm font-semibold text-red-900 transition hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:border-red-800 dark:bg-red-900/50 dark:text-red-100 dark:hover:bg-red-900/80 dark:focus:ring-offset-red-950" type="button" onClick={() => void refetch()}>Try again</button></section></main>
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 text-slate-900 sm:p-8">
+    <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:p-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-5">
         <section className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <div><p className="text-xs font-bold uppercase tracking-wide text-blue-600">Reservation records</p><h1 className="mt-1 text-3xl font-bold text-slate-950">Current requests</h1></div>
-          <button className="min-h-11 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" type="button" onClick={toggleReservationDetails}>{showReservationDetails ? 'Hide reservation details' : 'Show reservation details'}</button>
+          <div><p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400">Reservation records</p><h1 className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">Current requests</h1></div>
+          <button className="min-h-11 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-950" type="button" onClick={toggleReservationDetails}>{showReservationDetails ? 'Hide reservation details' : 'Show reservation details'}</button>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="new-reservation-title">
-          <h2 id="new-reservation-title" className="text-lg font-semibold text-slate-950">New reservation</h2>
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900" aria-labelledby="new-reservation-title">
+          <h2 id="new-reservation-title" className="text-lg font-semibold text-slate-950 dark:text-white">New reservation</h2>
           <form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div>
-              <Label className="text-slate-700" htmlFor="reservation-user-id">User ID</Label>
-              <Input id="reservation-user-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="number" min="1" aria-invalid={errors.userId ? true : undefined} aria-describedby={errors.userId ? 'reservation-user-id-error' : undefined} {...register('userId', { valueAsNumber: true })} />
-              {errors.userId && <p id="reservation-user-id-error" className="mt-1 text-sm text-red-600">{errors.userId.message}</p>}
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-user-id">User ID</Label>
+              <Input id="reservation-user-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="number" min="1" aria-invalid={errors.userId ? true : undefined} aria-describedby={errors.userId ? 'reservation-user-id-error' : undefined} {...register('userId', { valueAsNumber: true })} />
+              {errors.userId && <p id="reservation-user-id-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.userId.message}</p>}
             </div>
             <div>
-              <Label className="text-slate-700" htmlFor="reservation-room-id">Room ID</Label>
-              <Input id="reservation-room-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="number" min="1" aria-invalid={errors.roomId ? true : undefined} aria-describedby={errors.roomId ? 'reservation-room-id-error' : undefined} {...register('roomId', { valueAsNumber: true })} />
-              {errors.roomId && <p id="reservation-room-id-error" className="mt-1 text-sm text-red-600">{errors.roomId.message}</p>}
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-room-id">Room ID</Label>
+              <Input id="reservation-room-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="number" min="1" aria-invalid={errors.roomId ? true : undefined} aria-describedby={errors.roomId ? 'reservation-room-id-error' : undefined} {...register('roomId', { valueAsNumber: true })} />
+              {errors.roomId && <p id="reservation-room-id-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.roomId.message}</p>}
             </div>
             <div>
-              <Label className="text-slate-700" htmlFor="reservation-date">Date</Label>
-              <Input id="reservation-date" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="date" aria-invalid={errors.date ? true : undefined} aria-describedby={errors.date ? 'reservation-date-error' : undefined} {...register('date')} />
-              {errors.date && <p id="reservation-date-error" className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-date">Date</Label>
+              <Input id="reservation-date" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:[color-scheme:dark]" type="date" aria-invalid={errors.date ? true : undefined} aria-describedby={errors.date ? 'reservation-date-error' : undefined} {...register('date')} />
+              {errors.date && <p id="reservation-date-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.date.message}</p>}
             </div>
             <div>
-              <Label className="text-slate-700" htmlFor="reservation-start-time">Start time</Label>
-              <Input id="reservation-start-time" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="text" aria-invalid={errors.startTime ? true : undefined} aria-describedby={errors.startTime ? 'reservation-start-time-error' : undefined} {...register('startTime')} />
-              {errors.startTime && <p id="reservation-start-time-error" className="mt-1 text-sm text-red-600">{errors.startTime.message}</p>}
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-start-time">Start time</Label>
+              <Input id="reservation-start-time" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="text" aria-invalid={errors.startTime ? true : undefined} aria-describedby={errors.startTime ? 'reservation-start-time-error' : undefined} {...register('startTime')} />
+              {errors.startTime && <p id="reservation-start-time-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.startTime.message}</p>}
             </div>
             <div>
-              <Label className="text-slate-700" htmlFor="reservation-end-time">End time</Label>
-              <Input id="reservation-end-time" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="text" aria-invalid={errors.endTime ? true : undefined} aria-describedby={errors.endTime ? 'reservation-end-time-error' : undefined} {...register('endTime')} />
-              {errors.endTime && <p id="reservation-end-time-error" className="mt-1 text-sm text-red-600">{errors.endTime.message}</p>}
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-end-time">End time</Label>
+              <Input id="reservation-end-time" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="text" aria-invalid={errors.endTime ? true : undefined} aria-describedby={errors.endTime ? 'reservation-end-time-error' : undefined} {...register('endTime')} />
+              {errors.endTime && <p id="reservation-end-time-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.endTime.message}</p>}
             </div>
             <div>
-              <Label className="text-slate-700" htmlFor="reservation-purpose">Purpose</Label>
-              <Input id="reservation-purpose" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30" type="text" aria-invalid={errors.purpose ? true : undefined} aria-describedby={errors.purpose ? 'reservation-purpose-error' : undefined} {...register('purpose')} />
-              {errors.purpose && <p id="reservation-purpose-error" className="mt-1 text-sm text-red-600">{errors.purpose.message}</p>}
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-purpose">Purpose</Label>
+              <Input id="reservation-purpose" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="text" aria-invalid={errors.purpose ? true : undefined} aria-describedby={errors.purpose ? 'reservation-purpose-error' : undefined} {...register('purpose')} />
+              {errors.purpose && <p id="reservation-purpose-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.purpose.message}</p>}
             </div>
-            <div className="sm:col-span-2"><Button className="min-h-11 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:ring-blue-500" type="submit" disabled={addReservation.isPending}>{addReservation.isPending ? 'Creating reservation...' : 'Create reservation'}</Button>{addReservation.isError && <p className="mt-2 text-sm text-red-700" role="alert">Unable to create reservation. Please try again.</p>}</div>
+            <div className="sm:col-span-2"><Button className="min-h-11 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:ring-blue-500 dark:focus-visible:ring-offset-slate-900" type="submit" disabled={addReservation.isPending}>{addReservation.isPending ? 'Creating reservation...' : 'Create reservation'}</Button>{addReservation.isError && <p className="mt-2 text-sm text-red-700 dark:text-red-300" role="alert">Unable to create reservation. Please try again.</p>}</div>
           </form>
         </section>
 
