@@ -7,6 +7,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import RoomDetailPage from './pages/RoomDetailPage'
 import ReservationsPage from './pages/ReservationsPage'
 import RoomsPage from './pages/RoomsPage'
+import RegisterPage from './pages/RegisterPage'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="reservations" element={<ReservationsPage />} />
         </Route>
         <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

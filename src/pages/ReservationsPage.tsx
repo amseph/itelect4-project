@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { createReservation, fetchReservations } from '@/api/client'
+import { createReservation, fetchReservations, fetchRooms } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,11 +9,9 @@ import { reservationSchema } from '@/schemas/reservationSchema'
 import type { ReservationFormValues } from '@/schemas/reservationSchema'
 import ReservationBadge from '../components/ReservationBadge'
 import useToggle from '../hooks/useToggle'
-import { ReservationStatus } from '../types'
-import type { NewReservation, Reservation } from '../types'
+import type { ApiReservation, NewReservation, StudyRoom } from '../types'
 
 const initialReservation: ReservationFormValues = {
-  userId: 1,
   roomId: 101,
   date: '2026-08-22',
   startTime: '10:00 AM',
@@ -23,9 +21,13 @@ const initialReservation: ReservationFormValues = {
 
 function ReservationsPage() {
   const queryClient = useQueryClient()
-  const { data: reservations = [], isPending, isError, error, refetch } = useQuery<Reservation[]>({
+  const { data: reservations = [], isPending, isError, error, refetch } = useQuery<ApiReservation[]>({
     queryKey: ['reservations'],
     queryFn: fetchReservations,
+  })
+  const { data: rooms = [], isPending: roomsPending, isError: roomsError } = useQuery<StudyRoom[]>({
+    queryKey: ['rooms'],
+    queryFn: fetchRooms,
   })
   const [showReservationDetails, toggleReservationDetails] = useToggle(true)
   const {
@@ -38,7 +40,7 @@ function ReservationsPage() {
     mode: 'onBlur',
     defaultValues: initialReservation,
   })
-  const addReservation = useMutation<Reservation, Error, NewReservation>({
+  const addReservation = useMutation<ApiReservation, Error, NewReservation>({
     mutationFn: createReservation,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['reservations'] })
@@ -48,8 +50,11 @@ function ReservationsPage() {
 
   const onSubmit = (values: ReservationFormValues): void => {
     addReservation.mutate({
-      ...values,
-      status: ReservationStatus.Pending,
+      roomId: values.roomId,
+      date: values.date,
+      startTime: values.startTime,
+      endTime: values.endTime,
+      purpose: values.purpose,
     })
   }
 
@@ -73,13 +78,11 @@ function ReservationsPage() {
           <h2 id="new-reservation-title" className="text-lg font-semibold text-slate-950 dark:text-white">New reservation</h2>
           <form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div>
-              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-user-id">User ID</Label>
-              <Input id="reservation-user-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="number" min="1" aria-invalid={errors.userId ? true : undefined} aria-describedby={errors.userId ? 'reservation-user-id-error' : undefined} {...register('userId', { valueAsNumber: true })} />
-              {errors.userId && <p id="reservation-user-id-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.userId.message}</p>}
-            </div>
-            <div>
-              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-room-id">Room ID</Label>
-              <Input id="reservation-room-id" className="mt-1 min-h-11 border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:border-blue-500 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" type="number" min="1" aria-invalid={errors.roomId ? true : undefined} aria-describedby={errors.roomId ? 'reservation-room-id-error' : undefined} {...register('roomId', { valueAsNumber: true })} />
+              <Label className="text-slate-700 dark:text-slate-300" htmlFor="reservation-room-id">Study room</Label>
+              <select id="reservation-room-id" className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:bg-slate-950 dark:text-white" aria-invalid={errors.roomId ? true : undefined} aria-describedby={errors.roomId ? 'reservation-room-id-error' : undefined} disabled={roomsPending || roomsError} {...register('roomId', { valueAsNumber: true })}>
+                <option value="">{roomsPending ? 'Loading rooms…' : roomsError ? 'Unable to load rooms' : 'Choose a study room'}</option>
+                {rooms.map((room) => <option key={room.id} value={room.id}>{room.name} · {room.building}{room.isAvailable ? '' : ' (unavailable)'}</option>)}
+              </select>
               {errors.roomId && <p id="reservation-room-id-error" className="mt-1 text-sm text-red-600 dark:text-red-300">{errors.roomId.message}</p>}
             </div>
             <div>

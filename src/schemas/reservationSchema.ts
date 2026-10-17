@@ -18,7 +18,6 @@ function toMinutes(time: string): number | null {
 
 export const reservationSchema = z
   .object({
-    userId: z.number({ error: 'Enter a valid user ID.' }).int('User ID must be a whole number.').positive('User ID must be greater than zero.'),
     roomId: z.number({ error: 'Enter a valid room ID.' }).int('Room ID must be a whole number.').positive('Room ID must be greater than zero.'),
     date: z.string().min(1, 'Reservation date is required.').regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid reservation date.'),
     startTime: z.string().trim().min(1, 'Start time is required.').regex(reservationTimePattern, 'Use a time such as 10:00 AM.'),
