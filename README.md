@@ -1,35 +1,51 @@
 # Campus Study Room Reservation System
 
-## Project Concept
+The Campus Study Room Reservation System is a frontend web application for browsing study rooms, authenticating users, and creating and viewing study room reservations. It is built with React, TypeScript, Vite, and Tailwind CSS, and integrates with the deployed backend API.
 
-The Campus Study Room Reservation System is a React and TypeScript application that allows students to view campus study rooms and reservation information. It demonstrates reusable typed components, React state management, lifecycle effects, typed DOM events, DOM references, and custom hooks.
+## Features
 
-## Current React Components
+- Browse study rooms and view room details.
+- Register, log in, and log out.
+- Access reservation records through a protected page.
+- Create reservations and view persisted reservation records.
 
-- `UserCard` displays a user's name, email, role, active status, and selection action.
-- `StudyRoomCard` displays room details and allows available rooms to be selected for reservation.
-- `ReservationBadge` displays the date, time, purpose, and status of a reservation.
+## Technology Stack
 
-## React Hooks Implemented
+- React and TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- Zustand
+- React Hook Form and Zod
 
-- `useState<T>` manages users, rooms, reservations, loading state, search input, selected user, and selected room.
-- `useEffect` simulates loading mock data when the application first mounts.
-- `useRef<HTMLInputElement>` provides a typed reference used to focus the room search input.
-- `useToggle` is a custom hook used to show or hide reservation details.
-- `usePrevious<T>` is a generic custom hook used to remember the previous room search value.
-
-## Dynamic Features
-
-- Mock data loads dynamically after a short loading state.
-- Users and study rooms are rendered from typed array state.
-- The room search filters results by room name or building.
-- Selecting a user or reserving a room updates the visible selection summary.
-- Reservation details can be shown or hidden.
-- The previous search value is displayed using a custom hook.
-
-## Setup and Execution
+## Setup
 
 Install dependencies:
 
 ```bash
 npm install
+```
+
+Configure the backend URL in a local `.env` file using the `VITE_API_URL` variable. For local development, the value should be the backend API base URL.
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+## Live Deployment
+
+- Frontend: https://itelect4-project-chi.vercel.app
+- Backend: https://itelect4-backend-flame.vercel.app
+
+## Backend Repository
+
+[https://github.com/amseph/itelect4-backend](https://github.com/amseph/itelect4-backend)
