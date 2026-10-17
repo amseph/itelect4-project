@@ -41,7 +41,12 @@ export interface Reservation {
   status: ReservationStatus;
 }
 
-export type NewReservation = Omit<Reservation, "id">;
+export type ApiUser = Omit<User, "id"> & { id: string };
+export type ApiReservation = Omit<Reservation, "id" | "userId"> & { id: string; userId: string };
+export type LoginResponse = { token: string; user: ApiUser };
+export type RegisterUserBody = Pick<User, "name" | "email"> & { password: string };
+export type LoginUserBody = Pick<User, "email"> & { password: string };
+export type NewReservation = Pick<Reservation, "roomId" | "date" | "startTime" | "endTime" | "purpose">;
 
 export interface ApiResponse<T> {
   success: boolean;

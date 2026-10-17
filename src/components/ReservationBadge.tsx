@@ -1,8 +1,8 @@
 import type { FC, ReactNode } from 'react'
-import type { Reservation } from '../types'
+import type { ApiReservation } from '../types'
 
 export interface ReservationBadgeProps {
-  reservation: Reservation
+  reservation: ApiReservation
   children?: ReactNode
 }
 

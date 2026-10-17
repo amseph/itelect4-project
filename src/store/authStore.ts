@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware'
 export interface AuthState {
   token: string | null
   userName: string | null
-  login: (name: string) => void
+  setSession: (token: string, userName: string) => void
   logout: () => void
 }
 
@@ -13,8 +13,8 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
   token: null,
   userName: null,
-  login: (name) => {
-    set({ token: 'demo-auth-token', userName: name })
+  setSession: (token, userName) => {
+    set({ token, userName })
   },
   logout: () => {
     set({ token: null, userName: null })
