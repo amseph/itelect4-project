@@ -48,6 +48,13 @@ export type RegisterUserBody = Pick<User, "name" | "email"> & { password: string
 export type LoginUserBody = Pick<User, "email"> & { password: string };
 export type NewReservation = Pick<Reservation, "roomId" | "date" | "startTime" | "endTime" | "purpose">;
 
+export interface AiReview {
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  readiness: "ready" | "almost" | "not-yet";
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
