@@ -8,6 +8,7 @@ import RoomDetailPage from './pages/RoomDetailPage'
 import ReservationsPage from './pages/ReservationsPage'
 import RoomsPage from './pages/RoomsPage'
 import RegisterPage from './pages/RegisterPage'
+import AiReviewPage from './pages/AiReviewPage'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="rooms/:id" element={<RoomDetailPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="reservations" element={<ReservationsPage />} />
+          <Route path="review" element={<AiReviewPage />} />
         </Route>
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />

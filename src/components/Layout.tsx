@@ -3,13 +3,14 @@ import useToggle from '../hooks/useToggle'
 import { useAuthStore } from '../store/authStore'
 import useUiStore from '../store/uiStore'
 
-type NavigationIconName = 'dashboard' | 'rooms' | 'reservations' | 'login'
+type NavigationIconName = 'dashboard' | 'rooms' | 'reservations' | 'login' | 'ai-review'
 
-const navigationLinks: Array<{ label: string; to: string; icon: NavigationIconName }> = [
+const navigationLinks: Array<{ label: string; to: string; icon: NavigationIconName; authenticated?: boolean }> = [
   { label: 'Dashboard', to: '/', icon: 'dashboard' },
   { label: 'Rooms', to: '/rooms', icon: 'rooms' },
   { label: 'Reservations', to: '/reservations', icon: 'reservations' },
   { label: 'Login', to: '/login', icon: 'login' },
+  { label: 'AI Review', to: '/review', icon: 'ai-review', authenticated: true },
 ]
 
 function NavigationIcon({ name }: { name: NavigationIconName }) {
@@ -18,6 +19,7 @@ function NavigationIcon({ name }: { name: NavigationIconName }) {
     rooms: <><path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16" /><path d="M2 21h20" /><path d="M8 7h5M8 11h5M8 15h2" /></>,
     reservations: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h6" /></>,
     login: <><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><path d="M10 17l5-5-5-5M15 12H3" /></>,
+    'ai-review': <><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.64 5.64l1.42 1.42M16.94 16.94l1.42 1.42M18.36 5.64l-1.42 1.42M7.06 16.94l-1.42 1.42" /><path d="m10 10 2-5 2 5 5 2-5 2-2 5-2-5-5-2z" /></>,
   }
 
   return (
@@ -31,6 +33,7 @@ function Layout() {
   const [isSidebarCollapsed, toggleSidebarCollapsed] = useToggle(false)
   const [isMobileMenuOpen, toggleMobileMenu] = useToggle(false)
   const userName = useAuthStore((state) => state.userName)
+  const isAuthenticated = useAuthStore((state) => state.token !== null)
   const logout = useAuthStore((state) => state.logout)
   const isDarkMode = useUiStore((state) => state.isDarkMode)
   const toggleDarkMode = useUiStore((state) => state.toggleDarkMode)
@@ -61,7 +64,7 @@ function Layout() {
           </div>
 
           <nav className="mt-4 flex flex-col gap-0.5" aria-label="Primary navigation">
-            {navigationLinks.map((link) => (
+            {navigationLinks.filter((link) => !link.authenticated || isAuthenticated).map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}

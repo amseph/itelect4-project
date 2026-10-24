@@ -1,4 +1,4 @@
-import type { ApiReservation, ApiUser, LoginResponse, LoginUserBody, NewReservation, RegisterUserBody, StudyRoom } from '../types'
+import type { AiReview, ApiReservation, ApiUser, LoginResponse, LoginUserBody, NewReservation, RegisterUserBody, StudyRoom } from '../types'
 import { useAuthStore } from '../store/authStore'
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '')
@@ -56,6 +56,14 @@ export function createReservation(newReservation: NewReservation): Promise<ApiRe
   return request<ApiReservation>('/api/reservations', {
     method: 'POST',
     body: JSON.stringify(newReservation),
+    private: true,
+  })
+}
+
+export function askAi(prompt: string): Promise<AiReview> {
+  return request<AiReview>('/api/ai', {
+    method: 'POST',
+    body: JSON.stringify({ prompt }),
     private: true,
   })
 }
