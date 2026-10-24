@@ -28,7 +28,10 @@ export interface StudyRoom {
   capacity: number;
   hasProjector: boolean;
   isAvailable: boolean;
+  amenities?: StudyRoomAmenity[];
 }
+
+export type StudyRoomAmenity = 'aircon' | 'tv' | 'whiteboard' | 'projector' | 'quiet-zone';
 
 export interface Reservation {
   id: number;

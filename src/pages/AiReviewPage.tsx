@@ -1,11 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
+import { ArrowRight, Sparkles } from 'lucide-react'
+import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { askAi } from '@/api/client'
 import { aiReviewSchema, type AiReviewFormValues } from '@/schemas/aiReviewSchema'
 import type { AiReview } from '@/types'
+import { PageFrame, PageHeading } from '@/components/PageFrame'
 
 const readinessCopy: Record<AiReview['readiness'], { label: string; className: string }> = {
   ready: {
@@ -42,7 +45,7 @@ function AiReviewPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<AiReviewFormValues>({
     resolver: zodResolver(aiReviewSchema),
@@ -52,7 +55,7 @@ function AiReviewPage() {
   const reviewMutation = useMutation<AiReview, Error, string>({
     mutationFn: askAi,
   })
-  const promptLength = (watch('prompt') ?? '').trim().length
+  const promptLength = (useWatch({ control, name: 'prompt' }) ?? '').trim().length
 
   const onSubmit = ({ prompt }: AiReviewFormValues): void => {
     reviewMutation.mutate(prompt)
@@ -61,19 +64,13 @@ function AiReviewPage() {
   const review = reviewMutation.data
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] bg-slate-50 p-4 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:p-8">
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <header className="max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400">Study planning</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">AI Study Session Review</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">
-            Describe your proposed study session or room reservation to get practical suggestions before you book.
-          </p>
-        </header>
+    <PageFrame>
+      <PageHeading eyebrow="Study planning" title="AI Study Assistant" description="Describe your proposed study session or booking plan to get concise, practical feedback before you reserve." />
+      <div className="mx-auto flex max-w-4xl flex-col gap-5">
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6" aria-labelledby="study-session-form-title">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950 sm:p-6" aria-labelledby="study-session-form-title">
           <div className="max-w-2xl">
-            <h2 id="study-session-form-title" className="text-lg font-semibold text-slate-950 dark:text-white">Your study plan</h2>
+            <h2 id="study-session-form-title" className="flex items-center gap-2 text-lg font-semibold text-slate-950 dark:text-white"><Sparkles size={18} className="text-blue-700 dark:text-blue-300" />Your study plan</h2>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Include the date, time, group size, and any room requirements you already know.</p>
           </div>
 
@@ -99,7 +96,7 @@ function AiReviewPage() {
                 {reviewMutation.isPending && <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white motion-reduce:animate-none" aria-hidden="true" />}
                 {reviewMutation.isPending ? 'Reviewing your plan…' : 'Review study plan'}
               </Button>
-              <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">Suggestions are for planning and do not confirm room availability.</p>
+              <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">This feature reviews your plan. It does not check real room availability.</p>
             </div>
           </form>
         </section>
@@ -112,7 +109,7 @@ function AiReviewPage() {
         )}
 
         {review && (
-          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6" aria-labelledby="review-results-title" aria-live="polite">
+          <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950 sm:p-6" aria-labelledby="review-results-title" aria-live="polite">
             <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 dark:border-slate-700 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-blue-600 dark:text-blue-400">Your review</p>
@@ -130,10 +127,11 @@ function AiReviewPage() {
               <ReviewList title="Strengths" items={review.strengths} />
               <ReviewList title="Suggestions to improve" items={review.improvements} />
             </div>
+            <Link to="/rooms" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900">Browse study rooms <ArrowRight size={16} /></Link>
           </section>
         )}
       </div>
-    </main>
+    </PageFrame>
   )
 }
 

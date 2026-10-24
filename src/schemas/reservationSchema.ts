@@ -16,6 +16,13 @@ function toMinutes(time: string): number | null {
   return hour * 60 + minute + periodOffset
 }
 
+function localDateString(date = new Date()): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export const reservationSchema = z
   .object({
     roomId: z.number({ error: 'Enter a valid room ID.' }).int('Room ID must be a whole number.').positive('Room ID must be greater than zero.'),
@@ -23,6 +30,10 @@ export const reservationSchema = z
     startTime: z.string().trim().min(1, 'Start time is required.').regex(reservationTimePattern, 'Use a time such as 10:00 AM.'),
     endTime: z.string().trim().min(1, 'End time is required.').regex(reservationTimePattern, 'Use a time such as 12:00 PM.'),
     purpose: z.string().trim().min(3, 'Purpose must be at least 3 characters.'),
+  })
+  .refine(({ date }) => date >= localDateString(), {
+    message: 'Choose today or a future date.',
+    path: ['date'],
   })
   .refine(
     ({ startTime, endTime }) => {

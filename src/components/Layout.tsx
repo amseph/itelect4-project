@@ -1,103 +1,105 @@
-import { NavLink, Outlet } from 'react-router'
-import useToggle from '../hooks/useToggle'
+import { useEffect, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router'
+import { BookOpen, CalendarDays, LayoutDashboard, LogIn, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Sparkles, Sun, X } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import useUiStore from '../store/uiStore'
 
-type NavigationIconName = 'dashboard' | 'rooms' | 'reservations' | 'login' | 'ai-review'
-
-const navigationLinks: Array<{ label: string; to: string; icon: NavigationIconName; authenticated?: boolean }> = [
-  { label: 'Dashboard', to: '/', icon: 'dashboard' },
-  { label: 'Rooms', to: '/rooms', icon: 'rooms' },
-  { label: 'Reservations', to: '/reservations', icon: 'reservations' },
-  { label: 'Login', to: '/login', icon: 'login' },
-  { label: 'AI Review', to: '/review', icon: 'ai-review', authenticated: true },
+const navItems = [
+  { label: 'Dashboard', to: '/', icon: LayoutDashboard, public: true },
+  { label: 'Study rooms', to: '/rooms', icon: BookOpen, public: true },
+  { label: 'Reservations', to: '/reservations', icon: CalendarDays, public: false },
+  { label: 'AI Study Assistant', to: '/review', icon: Sparkles, public: false },
 ]
 
-function NavigationIcon({ name }: { name: NavigationIconName }) {
-  const paths = {
-    dashboard: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>,
-    rooms: <><path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16" /><path d="M2 21h20" /><path d="M8 7h5M8 11h5M8 15h2" /></>,
-    reservations: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h6" /></>,
-    login: <><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><path d="M10 17l5-5-5-5M15 12H3" /></>,
-    'ai-review': <><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.64 5.64l1.42 1.42M16.94 16.94l1.42 1.42M18.36 5.64l-1.42 1.42M7.06 16.94l-1.42 1.42" /><path d="m10 10 2-5 2 5 5 2-5 2-2 5-2-5-5-2z" /></>,
-  }
-
-  return (
-    <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {paths[name]}
-    </svg>
-  )
-}
-
 function Layout() {
-  const [isSidebarCollapsed, toggleSidebarCollapsed] = useToggle(false)
-  const [isMobileMenuOpen, toggleMobileMenu] = useToggle(false)
+  const navigate = useNavigate()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const token = useAuthStore((state) => state.token)
   const userName = useAuthStore((state) => state.userName)
-  const isAuthenticated = useAuthStore((state) => state.token !== null)
   const logout = useAuthStore((state) => state.logout)
+  const isAuthenticated = token !== null
   const isDarkMode = useUiStore((state) => state.isDarkMode)
   const toggleDarkMode = useUiStore((state) => state.toggleDarkMode)
 
-  const closeMobileDrawer = (): void => {
-    if (isMobileMenuOpen) {
-      toggleMobileMenu()
+  useEffect(() => {
+    if (!mobileOpen) return
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const focusable = () => drawerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')
+    focusable()?.[0]?.focus()
+    const handleDrawerKeys = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setMobileOpen(false); return }
+      if (event.key !== 'Tab') return
+      const elements = focusable()
+      if (!elements?.length) return
+      const first = elements[0]
+      const last = elements[elements.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
     }
+    window.addEventListener('keydown', handleDrawerKeys)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleDrawerKeys)
+      previousFocus?.focus()
+    }
+  }, [mobileOpen])
+
+  const handleLogout = () => {
+    logout()
+    setMobileOpen(false)
+    navigate('/login', { replace: true })
   }
+
+  const sidebar = (mobile = false) => (
+    <aside className={`flex h-full flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 ${mobile ? 'w-[min(19rem,88vw)]' : collapsed ? 'w-[4.5rem]' : 'w-64'}`}>
+      <div className={`flex h-[4.5rem] shrink-0 items-center border-b border-slate-200 px-4 dark:border-slate-800 ${!mobile && collapsed ? 'justify-center px-2' : 'justify-between'}`}>
+        <Link to="/" className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600" onClick={() => setMobileOpen(false)} aria-label="Campus Study Rooms home">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-blue-700 text-white"><BookOpen size={19} aria-hidden="true" /></span>
+          {(mobile || !collapsed) && <span className="min-w-0"><span className="block truncate text-sm font-semibold text-slate-950 dark:text-white">Campus Rooms</span><span className="block truncate text-xs text-slate-500 dark:text-slate-400">Study space, made simple</span></span>}
+        </Link>
+        {mobile ? <button type="button" onClick={() => setMobileOpen(false)} className="grid size-10 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:hover:bg-slate-800" aria-label="Close navigation"><X size={19} /></button> : <button type="button" onClick={() => setCollapsed((value) => !value)} className="hidden size-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:hover:bg-slate-800 lg:grid" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>{collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}</button>}
+      </div>
+
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5" aria-label="Primary navigation">
+        <p className={`mb-3 px-3 text-xs font-medium text-slate-400 ${!mobile && collapsed ? 'sr-only' : ''}`}>Workspace</p>
+        {navItems.filter((item) => item.public || isAuthenticated).map(({ label, to, icon: Icon }) => (
+          <NavLink key={to} to={to} end={to === '/'} onClick={() => setMobileOpen(false)} title={!mobile && collapsed ? label : undefined} className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${!mobile && collapsed ? 'lg:justify-center lg:px-2' : ''} ${isActive ? 'bg-blue-50 text-blue-800 dark:bg-blue-950/60 dark:text-blue-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white'}`}>
+            <Icon size={18} className="shrink-0" aria-hidden="true" />
+            {(mobile || !collapsed) && <span>{label}</span>}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="border-t border-slate-200 p-3 dark:border-slate-800">
+        {isAuthenticated ? <>
+          {(mobile || !collapsed) && <div className="mb-2 flex items-center gap-3 rounded-lg px-2 py-2"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{userName?.trim().charAt(0).toUpperCase() || 'S'}</span><span className="min-w-0"><span className="block truncate text-sm font-medium text-slate-900 dark:text-white">{userName || 'Student'}</span><span className="block text-xs text-slate-500 dark:text-slate-400">Signed in</span></span></div>}
+          <button type="button" onClick={handleLogout} title={!mobile && collapsed ? 'Log out' : undefined} className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:text-slate-300 dark:hover:bg-slate-900 ${!mobile && collapsed ? 'lg:justify-center lg:px-2' : ''}`}><LogOut size={18} />{(mobile || !collapsed) && 'Log out'}</button>
+        </> : <div className="grid gap-2">
+          {(mobile || !collapsed) && <Link to="/register" onClick={() => setMobileOpen(false)} className="flex min-h-10 items-center justify-center rounded-lg bg-blue-700 px-3 text-sm font-medium text-white hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">Create account</Link>}
+          <Link to="/login" title={!mobile && collapsed ? 'Log in' : undefined} onClick={() => setMobileOpen(false)} className={`flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:text-slate-300 dark:hover:bg-slate-900 ${!mobile && collapsed ? 'lg:justify-center lg:px-2' : ''}`}>{!mobile && collapsed ? <LogIn size={18} /> : <>{!isAuthenticated && <LogIn size={18} />}Log in</>}</Link>
+        </div>}
+      </div>
+    </aside>
+  )
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <div className="flex min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-        {isMobileMenuOpen && <button className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" type="button" aria-label="Close navigation menu" onClick={closeMobileDrawer} />}
-
-        <aside className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white p-2 shadow-lg transition-[transform,width] duration-200 dark:border-slate-800 dark:bg-slate-900 lg:static lg:z-auto lg:w-[216px] lg:translate-x-0 lg:shadow-none ${isSidebarCollapsed ? 'lg:w-16' : ''} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="flex min-h-10 items-center justify-between gap-1 px-1">
-            <div className={`flex min-w-0 items-center gap-3 ${isSidebarCollapsed ? 'lg:justify-center' : ''}`}>
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-bold text-white">SR</span>
-              <span className={`truncate text-xs font-bold tracking-wide text-slate-900 dark:text-white ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>Study Rooms</span>
-            </div>
-            <button className="inline-flex size-11 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden" type="button" aria-label="Close navigation menu" onClick={closeMobileDrawer}>
-              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-            </button>
-            <button className="hidden size-11 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:hover:bg-slate-800 lg:inline-flex" type="button" aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={toggleSidebarCollapsed}>
-              <svg className={`size-4 transition-transform ${isSidebarCollapsed ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-            </button>
-          </div>
-
-          <nav className="mt-4 flex flex-col gap-0.5" aria-label="Primary navigation">
-            {navigationLinks.filter((link) => !link.authenticated || isAuthenticated).map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/'}
-                onClick={closeMobileDrawer}
-                className={({ isActive }) =>
-                  `flex min-h-11 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-500/15 dark:text-blue-300 dark:hover:bg-blue-500/25'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
-                  } ${isSidebarCollapsed ? 'lg:justify-center lg:px-1.5' : ''}`
-                }
-              >
-                <NavigationIcon name={link.icon} />
-                <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>{link.label}</span>
-              </NavLink>
-            ))}
-          </nav>
-
-          <div className="mt-auto flex flex-col gap-1 border-t border-slate-200 pt-2 dark:border-slate-800">
-            {userName && <span className={`truncate px-2.5 pb-1 text-xs font-medium text-slate-500 dark:text-slate-400 ${isSidebarCollapsed ? 'lg:hidden' : ''}`}>{userName}</span>}
-            {userName && <button className={`flex min-h-11 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900 ${isSidebarCollapsed ? 'lg:justify-center lg:px-1.5' : ''}`} type="button" onClick={logout}><svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><path d="M10 17l5-5-5-5M15 12H3" /></svg><span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Logout</span></button>}
-          </div>
-        </aside>
-
+      <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 lg:flex">
+        <div className="sticky top-0 hidden h-screen shrink-0 lg:block">{sidebar()}</div>
+        {mobileOpen && <div className="fixed inset-0 z-50 lg:hidden" role="presentation"><button type="button" className="absolute inset-0 bg-slate-950/45" aria-label="Close navigation" onClick={() => setMobileOpen(false)} /><div ref={drawerRef} className="absolute inset-y-0 left-0 shadow-xl" role="dialog" aria-modal="true" aria-label="Mobile navigation">{sidebar(true)}</div></div>}
         <div className="min-w-0 flex-1">
-          <div className="flex h-14 items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 dark:border-slate-800 dark:bg-slate-950">
-            <button className="inline-flex size-11 items-center justify-center rounded-md text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden" type="button" aria-label="Open navigation menu" aria-expanded={isMobileMenuOpen} onClick={toggleMobileMenu}>
-              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-            </button>
-            <span className="text-xs font-bold tracking-wide text-slate-700 dark:text-slate-200 lg:hidden">Study Rooms</span>
-            <button className="ml-auto min-h-11 rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-offset-slate-950" type="button" onClick={toggleDarkMode}>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</button>
-          </div>
+          <header className="sticky top-0 z-30 flex h-[4.5rem] items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95 sm:px-6 lg:px-8">
+            <button type="button" onClick={() => setMobileOpen(true)} className="grid size-10 place-items-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden" aria-label="Open navigation"><Menu size={20} /></button>
+            <div className="min-w-0 text-sm font-semibold text-slate-900 dark:text-white lg:hidden">Campus Rooms</div>
+            <div className="ml-auto flex items-center gap-2">
+              {!isAuthenticated && <Link to="/login" className="hidden min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:text-slate-300 dark:hover:bg-slate-900 sm:inline-flex"><LogIn size={16} /> Log in</Link>}
+              <button type="button" onClick={toggleDarkMode} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900" aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`} title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>{isDarkMode ? <Sun size={17} /> : <Moon size={17} />}<span className="hidden sm:inline">{isDarkMode ? 'Light' : 'Dark'} mode</span></button>
+            </div>
+          </header>
           <Outlet />
         </div>
       </div>
