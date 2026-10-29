@@ -2,68 +2,55 @@
 
 [![CI](https://github.com/amseph/itelect4-project/actions/workflows/ci.yml/badge.svg)](https://github.com/amseph/itelect4-project/actions/workflows/ci.yml)
 
-The Campus Study Room Reservation System is a React web application for students to browse study rooms, create an account or sign in, and manage study room reservations. Its AI Study Assistant (AI Review page) reviews a proposed study plan and provides practical feedback before a reservation.
+## About
+
+A web application where students can browse study rooms, create and manage reservations, and use the AI Study Assistant to review a study plan.
 
 ## Features
 
-- Browse study rooms and view room details.
-- Register, authenticate, and log out.
-- Create reservations and view persisted reservation records.
-- Use the AI Study Assistant to review a study plan.
+- Register and log in
+- Browse study rooms and view room details
+- Create and manage study room reservations
+- Use the AI Study Assistant to review a study plan
 
-## Technology Stack
+## Tech Stack
 
-- React and TypeScript with Vite
-- Tailwind CSS and React Router
-- TanStack Query, Zustand, React Hook Form, and Zod
-- Express backend, MongoDB Atlas, and Gemini API
+React, TypeScript, Vite, and Tailwind CSS. The frontend connects to the project's Express backend.
 
 ## Architecture
 
 ```mermaid
-flowchart LR
-    U[User / browser] --> F[React / Vite frontend on Vercel]
-    F --> B[Express backend on Vercel]
-    B --> M[(MongoDB Atlas)]
+flowchart TD
+    U[User / Browser] --> F[React Frontend]
+    F --> B[Express Backend]
+    B --> M[MongoDB]
     B --> G[Gemini API]
 ```
 
+The user interacts with the React frontend. The frontend sends requests to the Express backend. The backend handles data through MongoDB and communicates with Gemini for the AI feature.
+
 ## Local Setup
 
-Requirements: Node.js 24 and npm.
+1. Install dependencies:
 
-Install dependencies:
+   ```bash
+   npm ci
+   ```
 
-```bash
-npm ci
-```
+2. Create a local `.env` file and set `VITE_API_URL` to the backend API base URL.
+3. Start the frontend:
 
-Set `VITE_API_URL` in a local `.env` file to the backend API base URL. For example:
+   ```bash
+   npm run dev
+   ```
 
-```env
-VITE_API_URL=https://itelect4-backend-flame.vercel.app
-```
-
-Run the frontend locally:
-
-```bash
-npm run dev
-```
-
-Run frontend tests:
+## Testing
 
 ```bash
 npm test
-```
-
-Lint and create a production build:
-
-```bash
 npm run lint
 npm run build
 ```
-
-The frontend tests use a fake test-only `VITE_API_URL` from `vite.config.ts`; they do not require a GitHub secret or call the deployed API.
 
 ## Live Deployment
 
