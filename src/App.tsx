@@ -9,10 +9,13 @@ import ReservationsPage from './pages/ReservationsPage'
 import RoomsPage from './pages/RoomsPage'
 import RegisterPage from './pages/RegisterPage'
 import AiReviewPage from './pages/AiReviewPage'
+import AuthLayout from './components/AuthLayout'
 
 function App() {
   return (
     <Routes>
+      <Route path="login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+      <Route path="register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
       <Route element={<Layout />}>
         <Route index element={<DashboardPage />} />
         <Route path="rooms" element={<RoomsPage />} />
@@ -21,8 +24,6 @@ function App() {
           <Route path="reservations" element={<ReservationsPage />} />
           <Route path="review" element={<AiReviewPage />} />
         </Route>
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
