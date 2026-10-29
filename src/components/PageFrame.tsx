@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 export function PageFrame({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <main className={`mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8 ${className}`}>{children}</main>
+  return <main className={`mx-auto w-full max-w-5xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8 ${className}`}>{children}</main>
 }
 
 export function PageHeading({ eyebrow, title, description, actions }: {
